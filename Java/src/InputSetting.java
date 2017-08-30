@@ -32,7 +32,7 @@ public class InputSetting extends JFrame {
 	private JTextField textFieldWork;
 	private JTextField textFieldRest;
 	private JTextField textFieldTime;
-	private JSpinner spinner;
+	private JSpinner spinnerCycle;
 
 	/**
 	 * Launch the application.
@@ -114,9 +114,9 @@ public class InputSetting extends JFrame {
 		lblWorkingCycle.setBounds(10, 133, 99, 22);
 		contentPane.add(lblWorkingCycle);
 		
-		JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 0, 30, 1));
-		spinner.setBounds(119, 135, 48, 20);
-		contentPane.add(spinner);
+		spinnerCycle = new JSpinner(new SpinnerNumberModel(1, 0, 30, 1));
+		spinnerCycle.setBounds(119, 135, 48, 20);
+		contentPane.add(spinnerCycle);
 		
 		textFieldWork = new JTextField();
 		textFieldWork.setText("20");
@@ -189,9 +189,11 @@ public class InputSetting extends JFrame {
 			int minNow = rightNow.get(Calendar.MINUTE);
 			int sec = rightNow.get(Calendar.SECOND);
 			
-			//int workingCycle = (Integer)spinner.getValue();
-			int workingCycle = 3;
+			int workingCycle = (Integer)spinnerCycle.getValue();
 			int timeAdd = Integer.parseInt(textFieldWork.getText()) * workingCycle + Integer.parseInt(textFieldRest.getText()) * (workingCycle - 1);
+			if (workingCycle == 0) {
+				timeAdd = 0;
+			}
 			int totalMinFinal = hourNow * 60 + minNow + timeAdd;
 			int hour = totalMinFinal / 60;
 			int min = totalMinFinal % 60;
