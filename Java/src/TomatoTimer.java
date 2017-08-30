@@ -18,6 +18,8 @@ import javax.swing.UIManager;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import javax.swing.JTable;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class TomatoTimer {
 
@@ -57,6 +59,12 @@ public class TomatoTimer {
 		frame.getContentPane().setLayout(null);
 		
 		JButton btnSetting = new JButton("Setting");
+		btnSetting.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputSetting settingFrame = new InputSetting();
+				settingFrame.setVisible(true);
+			}
+		});
 		btnSetting.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnSetting.setHorizontalAlignment(SwingConstants.LEFT);
 		Image settingImg = new ImageIcon(this.getClass().getResource("/setting.png")).getImage();
