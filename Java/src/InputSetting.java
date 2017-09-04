@@ -7,10 +7,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.JLabel;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.util.Calendar;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -18,6 +20,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
 public class InputSetting extends JFrame {
@@ -50,11 +53,13 @@ public class InputSetting extends JFrame {
 	 * Create the frame.
 	 */
 	public InputSetting(TomatoTimer tm) {
+		setResizable(false);
+		setAlwaysOnTop(true);
 		mainFrame = tm;
 		
 		setTitle("Setting...");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 230);
+		setBounds(100, 100, 450, 240);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -189,6 +194,11 @@ public class InputSetting extends JFrame {
 		contentPane.add(btnConfirm);
 		
 		JButton btnCancle = new JButton("Cancle");
+		btnCancle.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				InputSetting.this.setVisible(false);
+			}
+		});
 		btnCancle.setBounds(317, 169, 117, 29);
 		contentPane.add(btnCancle);
 		
@@ -205,7 +215,18 @@ public class InputSetting extends JFrame {
 			int sec = rightNow.get(Calendar.SECOND);
 			
 			int workingCycle = (Integer)spinnerCycle.getValue();
-			int timeAdd = Integer.parseInt(textFieldWork.getText()) * workingCycle + Integer.parseInt(textFieldRest.getText()) * (workingCycle - 1);
+			int wt, rt;
+			try {
+				wt = Integer.parseInt(textFieldWork.getText());
+			} catch (NumberFormatException ew){
+				wt = 0;
+			}
+			try {
+				rt = Integer.parseInt(textFieldRest.getText());
+			} catch (NumberFormatException er){
+				rt = 0;
+			}
+			int timeAdd = wt * workingCycle + rt * (workingCycle - 1);
 			if (workingCycle == 0) {
 				timeAdd = 0;
 			}
@@ -213,7 +234,7 @@ public class InputSetting extends JFrame {
 			int hour = (totalMinFinal / 60) % 24;
 			int min = totalMinFinal % 60;
 			
-			textFieldTime.setText(hour + ":" + min + ":" + sec);
+			textFieldTime.setText(SetTimeFormat.setTimeFormat(hour, min, sec, true));
 		}
 	}
 }

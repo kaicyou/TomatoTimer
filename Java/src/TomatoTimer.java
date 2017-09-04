@@ -2,6 +2,7 @@ import java.awt.EventQueue;
 import java.awt.Image;
 
 import javax.swing.JFrame;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -9,10 +10,12 @@ import java.awt.Color;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.SwingConstants;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.util.Calendar;
 import java.awt.event.ActionEvent;
 
@@ -63,7 +66,7 @@ public class TomatoTimer {
 		this.lblRestingTime.setText("Resting Time: " + settingData[1] + " min");
 		this.lblWorkingCycle.setText("Working Cycle: " + settingData[2] + " times");
 		int[] updatedNewTime = getUpdatedTime(Integer.parseInt(settingData[0]), Integer.parseInt(settingData[1]), Integer.parseInt(settingData[2]));
-		this.lblEndTime.setText("End Time: " + updatedNewTime[0] + ":" + updatedNewTime[0]);
+		this.lblEndTime.setText("End Time: " + SetTimeFormat.setTimeFormat(updatedNewTime[0], updatedNewTime[1], 0, false));
 	}
 	
 	/**
@@ -99,6 +102,15 @@ public class TomatoTimer {
 		frame.getContentPane().add(btnStart);
 		
 		JButton btnReset = new JButton("Reset");
+		btnReset.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				lblWorkingTime.setText("Working Time: " + defaultWorkingTime + " min");
+				lblRestingTime.setText("Resting Time: " + defaultRestingTime + " min");
+				lblWorkingCycle.setText("Working Cycle: " + defaultWorkingCycle + " times");
+				int[] resetTime = getUpdatedTime(defaultWorkingTime, defaultRestingTime, defaultWorkingCycle);
+				lblEndTime.setText("End Time: " + SetTimeFormat.setTimeFormat(resetTime[0], resetTime[1], 0, false));
+			}
+		});
 		btnReset.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnReset.setHorizontalAlignment(SwingConstants.LEFT);
 		Image resetImg = new ImageIcon(this.getClass().getResource("/reset.png")).getImage();
@@ -114,7 +126,19 @@ public class TomatoTimer {
 		btnPause.setBounds(345, 113, 89, 23);
 		frame.getContentPane().add(btnPause);
 		
+		String[] options = {"Yes, I want to quit", "No, I will stay"};
 		JButton btnQuit = new JButton("Quit");
+		btnQuit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Icon quitDialog = new ImageIcon(this.getClass().getResource("/quitDia.png"));
+				int n = JOptionPane.showOptionDialog(frame, "Do you really want to quit?", "Quit?", 
+													JOptionPane.YES_NO_CANCEL_OPTION, 
+													JOptionPane.QUESTION_MESSAGE, quitDialog, options, options[1]);
+				if (n == 0) {
+					frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+				}
+			}
+		});
 		btnQuit.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnQuit.setHorizontalAlignment(SwingConstants.LEFT);
 		Image quitImg = new ImageIcon(this.getClass().getResource("/quit.png")).getImage();
@@ -149,18 +173,18 @@ public class TomatoTimer {
 		lblRestingTime.setBounds(10, 30, 152, 20);
 		panel_1.add(lblRestingTime);
 		
-		lblWorkingCycle = new JLabel("Working Cycel: " + defaultWorkingCycle + " times");
+		lblWorkingCycle = new JLabel("Working Cycle: " + defaultWorkingCycle + " times");
 		lblWorkingCycle.setForeground(new Color(255, 69, 0));
 		lblWorkingCycle.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblWorkingCycle.setBounds(174, 11, 145, 20);
+		lblWorkingCycle.setBounds(161, 11, 158, 20);
 		panel_1.add(lblWorkingCycle);
 		
 		int[] newTime = getUpdatedTime(defaultWorkingTime, defaultRestingTime, defaultWorkingCycle);
 		
-		lblEndTime = new JLabel("End Time: " + newTime[0] + ":" + newTime[1]);
+		lblEndTime = new JLabel("End Time: " + SetTimeFormat.setTimeFormat(newTime[0], newTime[1], 0, false));
 		lblEndTime.setForeground(new Color(255, 69, 0));
 		lblEndTime.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblEndTime.setBounds(174, 30, 145, 20);
+		lblEndTime.setBounds(161, 30, 158, 20);
 		panel_1.add(lblEndTime);
 		
 		JLabel background = new JLabel("");
@@ -182,4 +206,5 @@ public class TomatoTimer {
 		returnTime[1] = totalMinFinal % 60;
 		return returnTime;
 	}
+	
 }

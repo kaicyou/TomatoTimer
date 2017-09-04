@@ -3,6 +3,7 @@
 /InputSetting$3.class
 /InputSetting$4.class
 /InputSetting$5.class
+/InputSetting$6.class
 /InputSetting$Listener.class
 /InputSetting.class
 /TomatoTimer$1.class
@@ -14,4 +15,10 @@
 /reset.png
 /setting.png
 /start.png
-/InputSetting$6.class
+/InputSetting$7.class
+/settingBackground.jpg
+/settingBackground.png
+/TomatoTimer$3.class
+/TomatoTimer$4.class
+/SetTimeFormat.class
+/quitDia.png
