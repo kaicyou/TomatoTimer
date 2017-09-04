@@ -4,27 +4,30 @@ import java.awt.Image;
 import javax.swing.JFrame;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JTextField;
 import javax.swing.JPanel;
-import javax.swing.border.LineBorder;
 import java.awt.Color;
-import javax.swing.border.SoftBevelBorder;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.MatteBorder;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.SwingConstants;
 import java.awt.Font;
-import javax.swing.JTable;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
 import java.awt.event.ActionEvent;
 
 public class TomatoTimer {
 
 	private JFrame frame;
-
+	private JLabel lblWorkingTime;
+	private JLabel lblRestingTime;
+	private JLabel lblWorkingCycle;
+	private JLabel lblEndTime;
+	
+	private int defaultWorkingTime = 20;
+	private int defaultRestingTime = 5;
+	private int defaultWorkingCycle = 3;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -47,7 +50,22 @@ public class TomatoTimer {
 	public TomatoTimer() {
 		initialize();
 	}
-
+	
+	// save the setting data for print
+	// data[0] : working time
+	// data[1] : rest time
+	// data[2] : working cycle
+	public String[] settingData = new String[3];
+	
+	// updating the labels with setting value
+	public void postData () {
+		this.lblWorkingTime.setText("Working Time: " + settingData[0] + " min");
+		this.lblRestingTime.setText("Resting Time: " + settingData[1] + " min");
+		this.lblWorkingCycle.setText("Working Cycle: " + settingData[2] + " times");
+		int[] updatedNewTime = getUpdatedTime(Integer.parseInt(settingData[0]), Integer.parseInt(settingData[1]), Integer.parseInt(settingData[2]));
+		this.lblEndTime.setText("End Time: " + updatedNewTime[0] + ":" + updatedNewTime[0]);
+	}
+	
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -61,7 +79,7 @@ public class TomatoTimer {
 		JButton btnSetting = new JButton("Setting");
 		btnSetting.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				InputSetting settingFrame = new InputSetting();
+				InputSetting settingFrame = new InputSetting(TomatoTimer.this);
 				settingFrame.setVisible(true);
 			}
 		});
@@ -119,22 +137,49 @@ public class TomatoTimer {
 		frame.getContentPane().add(panel_1);
 		panel_1.setLayout(null);
 		
-		JLabel lblWorkingTime = new JLabel("Working Time:");
+		lblWorkingTime = new JLabel("Working Time: " + defaultWorkingTime + " min");
 		lblWorkingTime.setForeground(new Color(255, 69, 0));
 		lblWorkingTime.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblWorkingTime.setBounds(10, 11, 88, 20);
+		lblWorkingTime.setBounds(10, 11, 152, 20);
 		panel_1.add(lblWorkingTime);
 		
-		JLabel lblRestingTime = new JLabel("Resting Time:");
+		lblRestingTime = new JLabel("Resting Time: " + defaultRestingTime + " min");
 		lblRestingTime.setForeground(new Color(255, 69, 0));
 		lblRestingTime.setFont(new Font("Tahoma", Font.BOLD, 12));
-		lblRestingTime.setBounds(10, 30, 88, 20);
+		lblRestingTime.setBounds(10, 30, 152, 20);
 		panel_1.add(lblRestingTime);
 		
-		JLabel label = new JLabel("");
+		lblWorkingCycle = new JLabel("Working Cycel: " + defaultWorkingCycle + " times");
+		lblWorkingCycle.setForeground(new Color(255, 69, 0));
+		lblWorkingCycle.setFont(new Font("Tahoma", Font.BOLD, 12));
+		lblWorkingCycle.setBounds(174, 11, 145, 20);
+		panel_1.add(lblWorkingCycle);
+		
+		int[] newTime = getUpdatedTime(defaultWorkingTime, defaultRestingTime, defaultWorkingCycle);
+		
+		lblEndTime = new JLabel("End Time: " + newTime[0] + ":" + newTime[1]);
+		lblEndTime.setForeground(new Color(255, 69, 0));
+		lblEndTime.setFont(new Font("Tahoma", Font.BOLD, 12));
+		lblEndTime.setBounds(174, 30, 145, 20);
+		panel_1.add(lblEndTime);
+		
+		JLabel background = new JLabel("");
 		Image backgroundImg = new ImageIcon(this.getClass().getResource("/background.png")).getImage();
-		label.setIcon(new ImageIcon(backgroundImg));
-		label.setBounds(0, 0, 444, 181);
-		frame.getContentPane().add(label);
+		background.setIcon(new ImageIcon(backgroundImg));
+		background.setBounds(0, 0, 444, 181);
+		frame.getContentPane().add(background);
+	}
+	
+	private int[] getUpdatedTime(int workingTime, int restingTime, int workingCycle) {
+		// returnTime[0] : hour
+		// returnTime[1] : minute
+		int[] returnTime = new int[2];
+		int hourNow = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+		int minNow = Calendar.getInstance().get(Calendar.MINUTE);
+		int timeAdd = workingTime * workingCycle + restingTime * (workingCycle - 1);
+		int totalMinFinal = hourNow * 60 + minNow + timeAdd;
+		returnTime[0] = (totalMinFinal / 60) % 24;
+		returnTime[1] = totalMinFinal % 60;
+		return returnTime;
 	}
 }

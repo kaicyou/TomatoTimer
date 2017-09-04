@@ -1,7 +1,5 @@
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -13,21 +11,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JSpinner.DefaultEditor;
-import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.JButton;
 
 public class InputSetting extends JFrame {
-
+	TomatoTimer mainFrame;
+	
 	private JPanel contentPane;
 	private JTextField textFieldWork;
 	private JTextField textFieldRest;
@@ -40,23 +35,26 @@ public class InputSetting extends JFrame {
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
-				try {
-					InputSetting frame = new InputSetting();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+//				try {
+//					InputSetting frame = new InputSetting();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
 			}
 		});
 	}
+
 	
 	/**
 	 * Create the frame.
 	 */
-	public InputSetting() {
+	public InputSetting(TomatoTimer tm) {
+		mainFrame = tm;
+		
 		setTitle("Setting...");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 450, 230);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -114,13 +112,13 @@ public class InputSetting extends JFrame {
 		lblWorkingCycle.setBounds(10, 133, 99, 22);
 		contentPane.add(lblWorkingCycle);
 		
-		spinnerCycle = new JSpinner(new SpinnerNumberModel(1, 0, 30, 1));
+		spinnerCycle = new JSpinner(new SpinnerNumberModel(3, 0, 30, 1));
 		spinnerCycle.setBounds(119, 135, 48, 20);
 		contentPane.add(spinnerCycle);
 		
 		textFieldWork = new JTextField();
 		textFieldWork.setText("20");
-		textFieldWork.setBounds(376, 13, 24, 20);
+		textFieldWork.setBounds(366, 13, 34, 20);
 		textFieldWork.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent ke) {
@@ -139,7 +137,7 @@ public class InputSetting extends JFrame {
 		textFieldRest = new JTextField();
 		textFieldRest.setText("5");
 		textFieldRest.setColumns(10);
-		textFieldRest.setBounds(376, 75, 24, 20);
+		textFieldRest.setBounds(366, 75, 34, 20);
 		textFieldRest.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent ke) {
@@ -177,6 +175,23 @@ public class InputSetting extends JFrame {
 		contentPane.add(textFieldTime);
 		textFieldTime.setColumns(10);
 		
+		JButton btnConfirm = new JButton("Confirm");
+		btnConfirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				mainFrame.settingData[0] = textFieldWork.getText();
+				mainFrame.settingData[1] = textFieldRest.getText();
+				mainFrame.settingData[2] = String.valueOf(spinnerCycle.getValue());
+				mainFrame.postData();
+				InputSetting.this.setVisible(false);
+			}
+		});
+		btnConfirm.setBounds(188, 169, 117, 29);
+		contentPane.add(btnConfirm);
+		
+		JButton btnCancle = new JButton("Cancle");
+		btnCancle.setBounds(317, 169, 117, 29);
+		contentPane.add(btnCancle);
+		
 		Timer t = new Timer(0, new Listener());
 		t.start();
 	}
@@ -195,7 +210,7 @@ public class InputSetting extends JFrame {
 				timeAdd = 0;
 			}
 			int totalMinFinal = hourNow * 60 + minNow + timeAdd;
-			int hour = totalMinFinal / 60;
+			int hour = (totalMinFinal / 60) % 24;
 			int min = totalMinFinal % 60;
 			
 			textFieldTime.setText(hour + ":" + min + ":" + sec);
