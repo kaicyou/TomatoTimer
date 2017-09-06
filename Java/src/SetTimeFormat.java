@@ -20,4 +20,18 @@ public class SetTimeFormat {
 		}
 		return sb.toString();
 	}
+	
+	public static String setCountDownFormat(int minute, int sec) {
+		StringBuilder sb = new StringBuilder();
+		if (minute < 10) {
+			sb.append(0);
+		}
+		sb.append(minute);
+		sb.append(':');
+		if (sec < 10) {
+			sb.append(0);
+		}
+		sb.append(sec);
+		return sb.toString();
+	}
 }

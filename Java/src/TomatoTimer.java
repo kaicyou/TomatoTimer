@@ -17,6 +17,8 @@ import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.awt.event.ActionEvent;
 
 public class TomatoTimer {
@@ -26,10 +28,16 @@ public class TomatoTimer {
 	private JLabel lblRestingTime;
 	private JLabel lblWorkingCycle;
 	private JLabel lblEndTime;
+	private JLabel lblWorkTimeLeft;
+	private JLabel lblRestTimeLeft;
+	private JLabel lblCycleLeft;
 	
 	private int defaultWorkingTime = 20;
 	private int defaultRestingTime = 5;
 	private int defaultWorkingCycle = 3;
+	
+	private int counter = 1200;
+	private boolean isWorking = false;
 	
 	/**
 	 * Launch the application.
@@ -67,6 +75,12 @@ public class TomatoTimer {
 		this.lblWorkingCycle.setText("Working Cycle: " + settingData[2] + " times");
 		int[] updatedNewTime = getUpdatedTime(Integer.parseInt(settingData[0]), Integer.parseInt(settingData[1]), Integer.parseInt(settingData[2]));
 		this.lblEndTime.setText("End Time: " + SetTimeFormat.setTimeFormat(updatedNewTime[0], updatedNewTime[1], 0, false));
+		this.counter = Integer.parseInt(settingData[0]) * 60;
+	}
+	
+	// set frame visible
+	public void setMeVisible () {
+		frame.setVisible(true);
 	}
 	
 	/**
@@ -84,6 +98,7 @@ public class TomatoTimer {
 			public void actionPerformed(ActionEvent arg0) {
 				InputSetting settingFrame = new InputSetting(TomatoTimer.this);
 				settingFrame.setVisible(true);
+				frame.setVisible(false);
 			}
 		});
 		btnSetting.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -94,6 +109,26 @@ public class TomatoTimer {
 		frame.getContentPane().add(btnSetting);
 		
 		JButton btnStart = new JButton("Start");
+		btnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				Timer workTimer = new Timer();
+				TimerTask workTask = new TimerTask() {
+					public void run() {
+						int minRem = counter / 60;
+						int secRem = counter % 60;
+						lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(minRem, secRem));
+						counter --;
+						if (counter == -1) {
+							workTimer.cancel();
+						} else if (isWorking) {
+							workTimer.cancel();
+							isWorking = false;
+						}
+					}
+				};
+				workTimer.scheduleAtFixedRate(workTask, 0, 1000);
+			}
+		});
 		btnStart.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnStart.setHorizontalAlignment(SwingConstants.LEFT);
 		Image startImg = new ImageIcon(this.getClass().getResource("/start.png")).getImage();
@@ -119,6 +154,11 @@ public class TomatoTimer {
 		frame.getContentPane().add(btnReset);
 		
 		JButton btnPause = new JButton("Pause");
+		btnPause.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				isWorking = true;
+			}
+		});
 		btnPause.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		btnPause.setHorizontalAlignment(SwingConstants.LEFT);
 		Image pauseImg = new ImageIcon(this.getClass().getResource("/pause.png")).getImage();
@@ -152,6 +192,46 @@ public class TomatoTimer {
 		panel.setOpaque(false);
 		frame.getContentPane().add(panel);
 		panel.setLayout(null);
+		
+		JLabel lblWorkingTimeRemaining = new JLabel("Working Time:");
+		lblWorkingTimeRemaining.setHorizontalAlignment(SwingConstants.CENTER);
+		lblWorkingTimeRemaining.setForeground(Color.RED);
+		lblWorkingTimeRemaining.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblWorkingTimeRemaining.setBounds(10, 11, 148, 29);
+		panel.add(lblWorkingTimeRemaining);
+		
+		JLabel lblRestingTimeRemaining = new JLabel("Resting Time:");
+		lblRestingTimeRemaining.setHorizontalAlignment(SwingConstants.CENTER);
+		lblRestingTimeRemaining.setForeground(new Color(34, 139, 34));
+		lblRestingTimeRemaining.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblRestingTimeRemaining.setBounds(10, 51, 148, 29);
+		panel.add(lblRestingTimeRemaining);
+		
+		JLabel lblCycle = new JLabel("Cycle:");
+		lblCycle.setHorizontalAlignment(SwingConstants.CENTER);
+		lblCycle.setForeground(new Color(0, 0, 205));
+		lblCycle.setFont(new Font("Tahoma", Font.BOLD, 18));
+		lblCycle.setBounds(253, 12, 62, 29);
+		panel.add(lblCycle);
+		
+		lblWorkTimeLeft = new JLabel("00:00");
+		lblWorkTimeLeft.setForeground(Color.RED);
+		lblWorkTimeLeft.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblWorkTimeLeft.setBounds(168, 11, 62, 29);
+		panel.add(lblWorkTimeLeft);
+		
+		lblRestTimeLeft = new JLabel("00:00");
+		lblRestTimeLeft.setForeground(new Color(34, 139, 34));
+		lblRestTimeLeft.setFont(new Font("Tahoma", Font.BOLD, 20));
+		lblRestTimeLeft.setBounds(168, 51, 62, 29);
+		panel.add(lblRestTimeLeft);
+		
+		lblCycleLeft = new JLabel("0");
+		lblCycleLeft.setHorizontalAlignment(SwingConstants.CENTER);
+		lblCycleLeft.setForeground(new Color(0, 0, 205));
+		lblCycleLeft.setFont(new Font("Tahoma", Font.PLAIN, 35));
+		lblCycleLeft.setBounds(253, 35, 62, 45);
+		panel.add(lblCycleLeft);
 		
 		JPanel panel_1 = new JPanel();
 		panel_1.setForeground(Color.BLACK);
@@ -206,5 +286,4 @@ public class TomatoTimer {
 		returnTime[1] = totalMinFinal % 60;
 		return returnTime;
 	}
-	
 }

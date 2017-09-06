@@ -58,7 +58,6 @@ public class InputSetting extends JFrame {
 		mainFrame = tm;
 		
 		setTitle("Setting...");
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 240);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -187,6 +186,7 @@ public class InputSetting extends JFrame {
 				mainFrame.settingData[1] = textFieldRest.getText();
 				mainFrame.settingData[2] = String.valueOf(spinnerCycle.getValue());
 				mainFrame.postData();
+				mainFrame.setMeVisible();
 				InputSetting.this.setVisible(false);
 			}
 		});
@@ -196,6 +196,7 @@ public class InputSetting extends JFrame {
 		JButton btnCancle = new JButton("Cancle");
 		btnCancle.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				mainFrame.setMeVisible();
 				InputSetting.this.setVisible(false);
 			}
 		});
