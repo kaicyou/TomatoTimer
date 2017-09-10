@@ -7,12 +7,10 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.JLabel;
 import java.awt.Font;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
 import java.util.Calendar;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
@@ -20,9 +18,9 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 
+@SuppressWarnings("serial")
 public class InputSetting extends JFrame {
 	TomatoTimer mainFrame;
 	
