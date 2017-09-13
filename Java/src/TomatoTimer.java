@@ -32,12 +32,18 @@ public class TomatoTimer {
 	private JLabel lblRestTimeLeft;
 	private JLabel lblCycleLeft;
 	
-	private int defaultWorkingTime = 20;
-	private int defaultRestingTime = 5;
-	private int defaultWorkingCycle = 3;
+	private final int defaultWorkingTime = 20;
+	private final int defaultRestingTime = 5;
+	private final int defaultWorkingCycle = 3;
 	
-	private int counter = 1200;
-	private boolean isWorking = false;
+	//private boolean isWorking = false;
+	private int workingSec;
+	private int restingSec;
+	private int workingCycle;
+	private boolean switchWorkRest;	// true for work; false for rest
+	private boolean startTiming;	// only start timer when it's true
+	int timeRemaining = 0;
+
 	
 	/**
 	 * Launch the application.
@@ -75,7 +81,10 @@ public class TomatoTimer {
 		this.lblWorkingCycle.setText("Working Cycle: " + settingData[2] + " times");
 		int[] updatedNewTime = getUpdatedTime(Integer.parseInt(settingData[0]), Integer.parseInt(settingData[1]), Integer.parseInt(settingData[2]));
 		this.lblEndTime.setText("End Time: " + SetTimeFormat.setTimeFormat(updatedNewTime[0], updatedNewTime[1], 0, false));
-		this.counter = Integer.parseInt(settingData[0]) * 60;
+		this.workingSec = Integer.parseInt(settingData[0]) * 60;
+		this.restingSec = Integer.parseInt(settingData[1]) * 60;
+		this.workingCycle = Integer.parseInt(settingData[2]);
+		this.switchWorkRest = true;
 	}
 	
 	// set frame visible
@@ -87,6 +96,12 @@ public class TomatoTimer {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
+		workingSec = defaultWorkingTime * 60;
+		restingSec = defaultRestingTime * 60;
+		workingCycle = defaultWorkingCycle;
+		switchWorkRest = true;
+		startTiming = true;
+		
 		frame = new JFrame("TomotoTimer");
 		frame.setResizable(false);
 		frame.setBounds(100, 100, 450, 210);
@@ -111,22 +126,94 @@ public class TomatoTimer {
 		JButton btnStart = new JButton("Start");
 		btnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				Timer workTimer = new Timer();
-				TimerTask workTask = new TimerTask() {
+				Timer timerWorkRest = new Timer();
+				TimerTask taskWorkRest = new TimerTask() {
+					int counter = switchWorkRest ? workingSec : restingSec;
 					public void run() {
-						int minRem = counter / 60;
-						int secRem = counter % 60;
-						lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(minRem, secRem));
-						counter --;
-						if (counter == -1) {
-							workTimer.cancel();
-						} else if (isWorking) {
-							workTimer.cancel();
-							isWorking = false;
+						if (workingCycle > 0) {
+							if (timeRemaining != 0) {
+								counter = timeRemaining;
+								timeRemaining = 0;
+							}
+							int minRem = counter / 60;
+							int secRem = counter % 60;
+							if (switchWorkRest) {
+								lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(minRem, secRem));
+								lblRestTimeLeft.setText(SetTimeFormat.setCountDownFormat(restingSec / 60, restingSec % 60));
+							} else {
+								lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(workingSec / 60, workingSec % 60));
+								lblRestTimeLeft.setText(SetTimeFormat.setCountDownFormat(minRem, secRem));
+							}
+							lblCycleLeft.setText(Integer.toString(workingCycle));
+							counter--;
+							if (counter == -1) {
+								//timerWorkRest.cancel();
+								if (switchWorkRest) {
+									workingCycle--;
+									if (workingCycle > 0) {
+										Object[] optionsWork = {"Yes, get some rest",
+					                    "No, I'll quit"};
+										int workContinue = JOptionPane.showOptionDialog(frame,
+										    "You've finished one working cycle, \n"
+											+"Would you like to continue?",
+										    "Working cycle finished",
+										    JOptionPane.YES_NO_OPTION,
+										    JOptionPane.QUESTION_MESSAGE,
+										    null,     //do not use a custom Icon
+										    optionsWork,  //the titles of buttons
+										    optionsWork[0]); //default button title
+										if (workContinue == 1) {
+											timerWorkRest.cancel();
+											lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+											lblRestTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+											lblCycleLeft.setText(Integer.toString(0));
+										} else {
+											counter = restingSec;
+											switchWorkRest = false;
+										}
+									}
+								} else {
+									Object[] optionsRest = {"Yes, get back to work",
+				                    "No, I'll quit"};
+									int restContinue = JOptionPane.showOptionDialog(frame,
+									    "You've finished one Resting cycle, \n"
+										+"Would you like to continue?",
+									    "Resting cycle finished",
+									    JOptionPane.YES_NO_OPTION,
+									    JOptionPane.QUESTION_MESSAGE,
+									    null,     //do not use a custom Icon
+									    optionsRest,  //the titles of buttons
+									    optionsRest[0]); //default button title
+									if (restContinue == 1) {
+										timerWorkRest.cancel();
+										lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+										lblRestTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+										lblCycleLeft.setText(Integer.toString(0));
+									} else {
+										counter = workingSec;
+										switchWorkRest = true;
+									}
+								}
+							} else if (!startTiming) {
+								timeRemaining = counter;
+								timerWorkRest.cancel();
+								startTiming = true;
+							}
+						} else {
+							lblWorkTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+							lblRestTimeLeft.setText(SetTimeFormat.setCountDownFormat(0, 0));
+							lblCycleLeft.setText(Integer.toString(0));
+							timerWorkRest.cancel();
+							Icon finishDialog = new ImageIcon(this.getClass().getResource("/finishDia.png"));
+							JOptionPane.showMessageDialog(frame,
+								    "You've finished your working journey!",
+								    "Congratulations!",
+								    JOptionPane.INFORMATION_MESSAGE,
+								    finishDialog);
 						}
 					}
 				};
-				workTimer.scheduleAtFixedRate(workTask, 0, 1000);
+				timerWorkRest.scheduleAtFixedRate(taskWorkRest, 0, 1000);
 			}
 		});
 		btnStart.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -144,6 +231,12 @@ public class TomatoTimer {
 				lblWorkingCycle.setText("Working Cycle: " + defaultWorkingCycle + " times");
 				int[] resetTime = getUpdatedTime(defaultWorkingTime, defaultRestingTime, defaultWorkingCycle);
 				lblEndTime.setText("End Time: " + SetTimeFormat.setTimeFormat(resetTime[0], resetTime[1], 0, false));
+				
+				workingSec = defaultWorkingTime * 60;
+				restingSec = defaultRestingTime * 60;
+				workingCycle = defaultWorkingCycle;
+				switchWorkRest = true;
+				startTiming = true;
 			}
 		});
 		btnReset.setFont(new Font("Tahoma", Font.PLAIN, 11));
@@ -156,7 +249,14 @@ public class TomatoTimer {
 		JButton btnPause = new JButton("Pause");
 		btnPause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				isWorking = true;
+				if (switchWorkRest) {
+					startTiming = false;
+				} else {
+					JOptionPane.showMessageDialog(frame,
+						    "You cannot pause while resting.",
+						    "Cannot pause...",
+						    JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		});
 		btnPause.setFont(new Font("Tahoma", Font.PLAIN, 11));
